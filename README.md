@@ -1,0 +1,2 @@
+# QQbotBaiduWikiPlugin
+这是一个基于qqbot开发的插件，用于发送长江大学百度百科俱乐部的微语
