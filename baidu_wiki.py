@@ -8,7 +8,10 @@ import tempfile
 import os
 
 
-def legal_text(value, n1=2, n2=5, bytes_length=720):
+def legal_text(value, n1=2, n2=5):
+    # 这里规定了微语字节数的最大值
+    bytes_length=720
+
     if not callable(value):
         raise TypeError
     for i in range(n1, 0, -1):
