@@ -2,27 +2,21 @@ import requests
 import re
 from bs4 import BeautifulSoup
 import time
-from qqbot.utf8logger import WARN, ERROR
 from jinja2 import Environment, PackageLoader
 from pyperclip import copy
 import tempfile
 import os
 
 
-def limited_items(value, length=255):
-    tmp = []
-    cur_len = 0
-    for item in value:
-        v = item
-        try:
-            _, v = item
-        except:
-            pass
-        cur_len += len(v)
-        if cur_len > length:
-            return tmp
-        tmp.append(item)
-    return tmp
+def legal_text(value, n1=2, n2=5, bytes_length=720):
+    if not callable(value):
+        raise TypeError
+    for i in range(n1, 0, -1):
+        for j in range(n2, 0, -1):
+            tmp_str = value(i, j)
+            bs = tmp_str.encode("utf-8")
+            if len(bs) < bytes_length:
+                return tmp_str
 
 
 def timer(value):
@@ -40,7 +34,7 @@ env = Environment(
     lstrip_blocks=True
 )
 # 注册自定义过滤器
-env.filters['limited_items'] = limited_items
+env.filters['legal_text'] = legal_text
 env.filters['timer'] = timer
 
 
@@ -98,19 +92,14 @@ def get_main_content(template_name):
 def onPlug(bot):
     # 读取配置
     global_conf = bot.conf.pluginsConf["baidu_wiki"]
-    try:
-        # 对配置项名称进行效验
-        if not all(['target' in global_conf, 'templates_path' in global_conf]):
-            raise KeyError
-    except:
-        WARN("BaiduWiki 无效的配置文件！")
     def_conf = {
         'target': [],
-        'exit_with_copy_the_message': True,
-        'on_exit_show_the_message': True,
+        'template_encoding': 'utf-8',
+        'exit_with_copy_the_message': False,
+        'on_exit_show_the_message': False,
     }
     conf = {**def_conf, **global_conf}
-
+    env.loader = PackageLoader('baidu_wiki', encoding=conf['template_encoding'])
     content = get_main_content('main.txt')
 
     def send_message(groupname, message):
