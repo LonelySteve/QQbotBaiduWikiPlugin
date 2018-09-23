@@ -3,7 +3,10 @@
 {# 这里是颜文字列表，可手动添加 #}
 {% set text_faces=["φ(>ω<*)","(〃'▽'〃)","(～￣▽￣)～ ","ヾ(✿ﾟ▽ﾟ)ノ","罒ω罒","(*´ﾟ∀ﾟ｀)ﾉ ","(oﾟ▽ﾟ)o"] %}
 {# 这里是小尾巴列表，程序将取最新的日期的键值对，可手动添加 #}
-{% set tail_dict = {"2018-09-22":"长江大学百度百科俱乐部"} %}
+{% set tail_dict = {
+"2018-09-22":"今天的活动安排",
+"2018-09-23":"长江大学百度百科俱乐部"
+} %}
 {# baidu_wiki 插件提供的数据 #}
 {% set HotEntries = get_hot_search() %}
 {# 历史上的今天的数据，get_today_history函数的time_参数一般省略（time_的格式例如"2018-09-24"）#}
@@ -11,15 +14,15 @@
 {# 天气预报的数据，get_weather_forecast函数的city_code参数缺省为荆州的代码（荆州代码是 101200801）#}
 {% set WeatherForecast = get_weather_forecast() %}
 {# 这里是热搜词条宏 #}
-{% macro hot_search_items() %}
-{% for k,v in HotEntries|limited_items(length=110) %}
+{% macro hot_search_items(slice_val) %}
+{% for k,v in HotEntries[:slice_val] %}
 ● {{ k }}
 {{ v }}
 {% endfor %}
 {% endmacro %}
 {# 这里是历史上的今天宏 #}
-{% macro history_today_items() %}
-{% for k,v in Histories|limited_items(length=50) %}
+{% macro history_today_items(slice_val) %}
+{% for k,v in Histories[:slice_val] %}
 {{ k }}--{{ v }}
 {% endfor %}
 {% endmacro %}
@@ -27,12 +30,16 @@
 {% macro weather_forecast_items() %}
 明天是{{ WeatherForecast['forecast'][1]["date"] }}，{{ WeatherForecast['forecast'][1]["type"] }}，{{ WeatherForecast['forecast'][1]["high"] }}，{{ WeatherForecast['forecast'][1]["low"] }}
 {% endmacro %}
-{# 这里是核心模板 #}
+{# 这里是核心模板宏 #}
+{% macro core(num1 , num2) %}
 晚安~ {{ text_faces|random }}
 【今日热搜词条】/{{ emoji_faces|random }}
-{{ hot_search_items() -}}
+{{ hot_search_items(num1) -}}
 【历史上的今天】/{{ emoji_faces|random }}
-{{ history_today_items() -}}
+{{ history_today_items(num2) -}}
 【明日天气预报】/{{ emoji_faces|random }}
 {{ weather_forecast_items() -}}
 ——{{ (tail_dict|timer)[1] }}
+{% endmacro %}
+{# 实际打印 #}
+{{ core|legal_text }}
