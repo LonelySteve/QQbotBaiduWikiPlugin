@@ -10,7 +10,7 @@ import os
 
 def legal_text(value, n1=2, n2=5):
     # 这里规定了微语字节数的最大值
-    bytes_length=720
+    bytes_length = 720
 
     if not callable(value):
         raise TypeError
@@ -25,8 +25,11 @@ def legal_text(value, n1=2, n2=5):
 def timer(value):
     if not isinstance(value, dict):
         raise TypeError
-
-    sorted_items = sorted(value.items(), key=lambda x: time.strptime(x[0], r"%Y-%m-%d"))
+    # 这里先过滤掉未来的日期
+    time_now = time.localtime(time.time())
+    recent_items = [(k, v) for k, v in value.items() if time.strptime(k, r"%Y-%m-%d") <= time_now]
+    # 然后对最近的日期活动项进行排序
+    sorted_items = sorted(recent_items, key=lambda x: x[0])
     # 只返回最近一个键值对
     return sorted_items[-1]
 
