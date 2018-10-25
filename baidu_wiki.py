@@ -1,4 +1,6 @@
+from time import sleep
 import requests
+import random
 import re
 from bs4 import BeautifulSoup
 import time
@@ -103,8 +105,20 @@ def onPlug(bot):
         'template_encoding': 'utf-8',
         'exit_with_copy_the_message': False,
         'on_exit_show_the_message': False,
+        # 随机发送周期支持秒级随机数表示
+        'send_interval': [],
+        # 调试模式
+        'debug': False,
     }
     conf = {**def_conf, **global_conf}
+    is_debug = conf['debug']
+
+    def debug(msg):
+        if is_debug:
+            print('='*72)
+            print(msg)
+            print('='*72)
+
     env.loader = PackageLoader('baidu_wiki', encoding=conf['template_encoding'])
     content = get_main_content('main.txt')
 
@@ -114,8 +128,21 @@ def onPlug(bot):
             b = bl[0]
             bot.SendTo(b, message)
 
+    send_interval = conf['send_interval']
+    if isinstance(send_interval, (int, float)):
+        send_interval = [send_interval]
+
+    debug("发送周期：" + ', '.join([str(i) for i in send_interval]))
+
     for tar in conf['target']:
-        send_message(tar, content)
+        if send_interval:
+            sec = random.choice(send_interval)
+            debug(f"休息秒数：{sec}")
+            sleep(sec)
+
+        debug(f"发送对象：{tar} \n 发送内容：\n {content}")
+        if not is_debug:
+            send_message(tar, content)
 
     if conf['exit_with_copy_the_message']:
         copy(content)
@@ -125,6 +152,7 @@ def onPlug(bot):
         tmp.write(content)
         tmp.close()
         os.system(f"notepad {tmp.name}")
+    bot.Stop()
 
 
 if __name__ == '__main__':
