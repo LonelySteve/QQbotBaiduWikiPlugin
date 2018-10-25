@@ -1,13 +1,12 @@
-from time import sleep
-import requests
-import random
 import re
-from bs4 import BeautifulSoup
+import os
 import time
+import random
+import requests
+from bs4 import BeautifulSoup
 from jinja2 import Environment, PackageLoader
 from pyperclip import copy
 import tempfile
-import os
 
 
 def legal_text(value, n1=2, n2=5):
@@ -105,7 +104,7 @@ def onPlug(bot):
         'template_encoding': 'utf-8',
         'exit_with_copy_the_message': False,
         'on_exit_show_the_message': False,
-        # 随机发送周期支持秒级随机数表示
+        # 随机发送时间间隔支持秒级随机数表示
         'send_interval': [],
         # 调试模式
         'debug': False,
@@ -120,7 +119,7 @@ def onPlug(bot):
             print('='*72)
 
     env.loader = PackageLoader('baidu_wiki', encoding=conf['template_encoding'])
-    content = get_main_content('main.txt')
+    content = get_main_content('main.jinja2')
 
     def send_message(groupname, message):
         bl = bot.List('group', groupname)
@@ -132,13 +131,13 @@ def onPlug(bot):
     if isinstance(send_interval, (int, float)):
         send_interval = [send_interval]
 
-    debug("发送周期：" + ', '.join([str(i) for i in send_interval]))
+    debug("发送间隔：" + ', '.join([str(i) for i in send_interval]))
 
     for tar in conf['target']:
         if send_interval:
             sec = random.choice(send_interval)
             debug(f"休息秒数：{sec}")
-            sleep(sec)
+            time.sleep(sec)
 
         debug(f"发送对象：{tar} \n 发送内容：\n {content}")
         if not is_debug:

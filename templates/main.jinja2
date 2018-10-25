@@ -1,12 +1,5 @@
-{# 这里是emoji表情的字符列表，可手动添加 #}
-{% set emoji_faces = ["微笑","可爱","调皮", "呲牙","爱心", "蛋糕","憨笑","奋斗", "礼物", "拥抱","点赞"] %}
-{# 这里是颜文字列表，可手动添加 #}
-{% set text_faces=["φ(>ω<*)","(〃'▽'〃)","(～￣▽￣)～ ","ヾ(✿ﾟ▽ﾟ)ノ","罒ω罒","(*´ﾟ∀ﾟ｀)ﾉ ","(oﾟ▽ﾟ)o"] %}
-{# 这里是小尾巴列表，程序将取最新的日期的键值对，可手动添加 #}
-{% set tail_dict = {
-"2018-09-22":"今天的活动安排",
-"2018-09-23":"长江大学百度百科俱乐部"
-} %}
+{% import 'face.jinja2' as face %}
+{% import 'log.jinja2' as log %}
 {# baidu_wiki 插件提供的数据 #}
 {% set HotEntries = get_hot_search() %}
 {# 历史上的今天的数据，get_today_history函数的time_参数一般省略（time_的格式例如"2018-09-24"）#}
@@ -32,14 +25,14 @@
 {% endmacro %}
 {# 这里是核心模板宏 #}
 {% macro core(num1 , num2) %}
-晚安~ {{ text_faces|random }}
-【今日热搜词条】/{{ emoji_faces|random }}
+晚安~ {{ face.text_faces|random }}
+【今日热搜词条】/{{ face.emoji_faces|random }}
 {{ hot_search_items(num1) -}}
-【历史上的今天】/{{ emoji_faces|random }}
+【历史上的今天】/{{ face.emoji_faces|random }}
 {{ history_today_items(num2) -}}
-【明日天气预报】/{{ emoji_faces|random }}
+【明日天气预报】/{{ face.emoji_faces|random }}
 {{ weather_forecast_items() -}}
-——{{ (tail_dict|timer)[1] }}
+——{{ (log.logs_mapping|timer)[1] }}
 {% endmacro %}
 {# 实际打印 #}
 {{ core|legal_text }}
