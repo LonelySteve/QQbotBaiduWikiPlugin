@@ -15,6 +15,7 @@
 * [Jinja2](http://jinja.pocoo.org/)
 * [requests](http://www.python-requests.org/en/master/)
 * [bs4](https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/)
+* [pyperclip](https://github.com/asweigart/pyperclip)
 
 ### 对qqbot进行配置
 
@@ -106,6 +107,10 @@
                 "exit_with_copy_the_message":True,
                 # 在插件退出时，将构建内容输出至临时文件中，并用记事本打开呈现。默认为开启状态
                 'on_exit_show_the_message': True,
+                # 消息发送间隔时间，默认为空，即不使用间隔时间，另：间隔时间将随机选取
+                'send_interval':[3,4,5],
+                # 是否开启调试模式，在调试模式下，消息将不会真正发出
+                'debug':False,
             }
 	    }
     }
@@ -224,11 +229,17 @@ _在v0.0.1版本中timer将返回最新的日期的键值对，而不是最近�
 
 ### 关于模板
 
-模板所在路径暂时不可改变，即 **.\templates\main.txt**
+模板所在路径暂时不可改变，即 **.\templates\\*.jinja2**
 
 _如果出现编码问题，请尝试修改qqbot的配置文件中本插件的模板编码设置项_
 
 ## 版本变更
+
+### v0.0.3
+
+* 新增：随机发送消息时间间隔设置
+* 新增：Debug 模式
+* 修正：解耦 main.txt 模板，新的模板文件扩展名修改为 .jinja2
 
 ### v0.0.2
 
