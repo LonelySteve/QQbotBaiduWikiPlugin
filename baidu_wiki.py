@@ -1,12 +1,14 @@
-import re
 import os
-import time
 import random
+import re
+import tempfile
+import time
+
 import requests
 from bs4 import BeautifulSoup
 from jinja2 import Environment, PackageLoader
 from pyperclip import copy
-import tempfile
+from qqbot import qqbotsched
 
 
 def legal_text(value, n1=2, n2=5):
@@ -93,10 +95,8 @@ def get_main_content(template_name):
     return content
 
 
-# 本插件被加载时被调用，提供 List/SendTo/GroupXXX/Stop/Restart 等接口，详见文档第五节
-# 提醒：如果本插件设置为启动时自动加载，则本函数将延迟到登录完成后被调用
-# bot ： QQBot 对象
-def onPlug(bot):
+@qqbotsched(hour='22', minute='30')
+def sched_weiyu_task(bot):
     # 读取配置
     global_conf = bot.conf.pluginsConf["baidu_wiki"]
     def_conf = {
@@ -114,9 +114,9 @@ def onPlug(bot):
 
     def debug(msg):
         if is_debug:
-            print('='*72)
+            print('=' * 72)
             print(msg)
-            print('='*72)
+            print('=' * 72)
 
     env.loader = PackageLoader('baidu_wiki', encoding=conf['template_encoding'])
     content = get_main_content('main.jinja2')
@@ -151,7 +151,6 @@ def onPlug(bot):
         tmp.write(content)
         tmp.close()
         os.system(f"notepad {tmp.name}")
-    bot.Stop()
 
 
 if __name__ == '__main__':
