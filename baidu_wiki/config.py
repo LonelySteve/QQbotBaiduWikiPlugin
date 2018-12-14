@@ -1,9 +1,9 @@
 import collections
-import exceptions
+from copy import deepcopy
 
 import yaml
 
-import logger
+from baidu_wiki import exceptions, logger
 
 
 def _isfilelike(f):
@@ -24,14 +24,15 @@ def _isfilelike(f):
         pass
     return False
 
+
 class QQbotPluginConfig(object):
 
-    field = {**BaseConfig.field, **{
+    field = {
         "target": [],
         "template_encoding": "utf-8",
         "send_interval": [],
         "debug": False
-    }}
+    }
 
     def __init__(self, bot, plugin_name):
         self.PluginConfig = bot.conf.pluginsConf[plugin_name]
@@ -39,21 +40,23 @@ class QQbotPluginConfig(object):
         for k, v in self.PluginConfig.items():
             if k not in QQbotPluginConfig.field:
                 logger.warn(f"{plugin_name}: {k} 配置选项不受支持！")
-            setattr(self, k, property(fget=(lambda v: lambda self: v)(v)))
+            setattr(QQbotPluginConfig, k, property(fget=(lambda v: lambda self: v)(v)))
 
-        for k, v in QQbotPluginConfig.field:
-            if not hasattr(self, k):
-                setattr(self, k, property(fget=(lambda v: lambda self: v)(v)))
+        for k, v in QQbotPluginConfig.field.items():
+            if not hasattr(QQbotPluginConfig, k):
+                setattr(QQbotPluginConfig, k, property(fget=(lambda v: lambda self: v)(v)))
 
 
-class SelfConfig(QQbotPluginConfig):
-    field = {**QQbotConfig.field, **{
+class SelfConfig(object):
+
+    field = {**deepcopy(QQbotPluginConfig.field),  # 虽然写成这个鬼样子，但是为了避免一些奇怪的BUG，还是得深拷贝一下
+             **{
         "_today_task_has_done": False,
     }}
 
     def __init__(self, fp, encoding='utf-8'):
         if isinstance(fp, str):
-            fp = open(fp, "w+", encoding=encoding)
+            fp = open(fp, "r+", encoding=encoding)
         if not _isfilelike(fp):
             raise ValueError("fp must be file-like object or file path str!")
         self.fp = fp
@@ -78,7 +81,7 @@ class SelfConfig(QQbotPluginConfig):
         data = yaml.load(fp)
 
         for k, v in data.items():
-            setattr(self, k, property(fget=getter_producer(k, v), fset=setter_producer(k, v)))
+            setattr(SelfConfig, k, property(fget=getter_producer(k, v), fset=setter_producer(k, v)))
 
     def __enter__(self):
         return self
